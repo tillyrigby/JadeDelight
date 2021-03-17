@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Jade Delight</title>
+
+<style>
+	body {background-color: #89cff0; font-weight: 900; color: #FFFFFF; text-align: center;}
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+<script language="javascript">
+
+function MenuItem(name, cost)
+{
+	this.name = name;
+	this.cost=cost;
+}
+
+menuItems = new Array(
+	new MenuItem("Chicken Chop Suey", 4.5),
+	new MenuItem("Sweet and Sour Pork", 6.25),
+	new MenuItem("Shrimp Lo Mein", 5.25),
+	new MenuItem("Moo Shi Chicken", 6.5),
+	new MenuItem("Fried Rice", 2.35)
+);
+
+function makeSelect(name, minRange, maxRange)
+{
+	var t= "";
+	t = "<select name='" + name + "' size='1'>";
+	for (j=minRange; j<=maxRange; j++)
+	   t += "<option>" + j + "</option>";
+	t+= "</select>"; 
+	return t;
+}
+</script>
+
+<h1>Jade Delight</h1>
+<form>
+
+<p>First Name: <input type="text"  name='fname' /></p>
+<p>Last Name*:  <input type="text"  name='lname' /></p>
+<p>Street: <input type="text"  name='street' /></p>
+<p>City: <input type="text"  name='city' /></p>
+<p>Phone*: <input type="text"  name='phone' /></p>
+<p> 
+	<input type="radio"  name="p_or_d" value = "pickup" checked="checked"/>Pickup  
+	<input type="radio"  name='p_or_d' value = 'delivery'/>
+	Delivery
+</p>
+<table bitemType="0" cellpadding="3" align="center">
+  <tr>
+    <th>Select Item</th>
+    <th>Item Name</th>
+    <th>Cost Each</th>
+    <th>Total Cost</th>
+  </tr>
+<script language="javascript">
+
+  var s = "";
+  for (i=0; i< menuItems.length; i++)
+  {
+	  s += "<tr><td>";
+	  s += makeSelect("quan" + i, 0, 10);
+	  s += "</td><td>" + menuItems[i].name + "</td>";
+	  s += "<td> $ " + menuItems[i].cost.toFixed(2) + "</td>";
+	  s += "<td>$<input type='text' name='cost'/></td></tr>";
+  }
+  document.writeln(s);
+
+  	/* default page shows no city and street*/
+	$("p").eq(2).hide();
+  	$("p").eq(3).hide();
+
+  	/* if delivery, then show spots for city and street*/
+	$("[name='p_or_d']").click(function () {
+		if ($("[value='delivery']").is(":checked")) {
+			$("p").eq(2).show();
+			$("p").eq(3).show();
+	  	} else {
+	  		$("p").eq(2).hide();
+			$("p").eq(3).hide();
+	  	}
+  	})
+
+	$(document).ready(function() {
+
+	/* This function prints an alert sating the order, cost, and expected time*/
+	function printAlert(nameOK, phoneOK, addressOK, orderNumOK, time, total) {
+
+    	if (nameOK == true && phoneOK == true && addressOK == true && orderNumOK) {
+  			alert("Thank you for your order!! \r\n  You ordered:  \r\n" + 
+  			order[0] + " Chicken Chop Suey" + "\r\n" + 
+  			order[1] + " Sweet and Sour Pork" + "\r\n" + 
+  			order[2] + " Shrimp Lo Mein" + "\r\n" + 
+  			order[3] + " Moo Shi Chicken" + "\r\n" + 
+  			order[4] + " Fried Rice" + "\r\n" + 
+  			"\r\n  Total Cost: $" + total + "\r\n You will have your order at: " + time
+  			);
+  		}
+    }
+
+    /* This function gets the cost for the menu item, based on how many items of that type were ordered*/
+	function getAmount(index, order, freqeuncy, itemPrice) {
+
+		frequency[index] = order[index] * itemPrice[index];
+		amount = frequency[index];
+		document.getElementsByName("cost")[index].value = (frequency[index]).toFixed(2);
+		return amount;
+
+	}
+
+	/* This function gets the subtotal by adding up the amounts/cost of everything ordered*/
+	function calculateSubtotal(frequency) {
+		subtotal = frequency[0] + frequency[1] + frequency[2] + frequency[3] + frequency[4]; 
+    	document.getElementsByName("subtotal")[0].value = subtotal.toFixed(2);
+    	return subtotal;
+	}
+
+	/* This function calculates the tax based off the subtotal*/
+	function calculateTax(subtotal) {
+		tax = subtotal * 0.0625; 
+		document.getElementsByName("tax")[0].value = tax.toFixed(2);
+		return tax;
+	}
+
+	/* This function calculates the total based on the tax and subtotal*/
+	function calculateTotal(tax, subtotal) {
+		total = subtotal + tax; 
+    	document.getElementsByName("total")[0].value = total.toFixed(2)
+	}
+
+	/* This function checks if a last name was entered*/
+	function checkName (nameOK) {
+  	if (!$("[name = 'lname']").val()) {
+  		nameOK = false;
+  		alert("You must provide a last name.");
+  	}
+  	return nameOK;
+  }
+
+  /* This function checks if a valid phone number was entered*/
+  function checkPhone(phoneOK) {
+  	if (!$("[name = 'phone']").val()) {
+  		phoneOK = false;
+  		alert("You must provide a phone number.");
+  	} else if (document.getElementsByName("phone")[0].value.length != 10) {
+  		phoneOK = false;
+  		alert("Your phone number must be 10 numbers");
+  	} else if (isNaN(document.getElementsByName("total")[0].value)) {
+  		phoneOK = false;
+  		alert("Your phone number may only contain numbers!");
+  	}
+  	return phoneOK;
+  }
+
+  /* This function checks if city and street was entered*/
+  function checkDelivery(addressOK) {
+  	if ($("[value = 'delivery']").is(":checked")) {
+  		if (!$("[name=street]").val()) {
+  			addressOK = false;
+  			alert("You must provide a valid address.");
+  		} else if (!$("[name=city]").val()) {
+  			addressOK = false;
+  			alert("You must provide a valid address.");
+  		}
+  	}
+  	return addressOK;
+  }
+
+  /* This function checks that at least one item was ordered*/
+  function checkTotal(orderNumOK) {
+  	if (document.getElementsByName("total")[0].value == 0) {
+  		orderNumOK = false;
+  		alert("You didn't order anything");
+  	}
+  	return orderNumOK;
+  }
+
+  /* This function calculates the expected delivery or arrival time*/
+  function checkTime() {
+  	var today = new Date();
+  	var timeToWait;
+  	var hours;
+  	var minutes;
+  	var daytime;
+  	var preciseTime;
+  	if ($("[value = 'delivery']").is(":checked")) {
+  		timeToWait = 30;
+  	} else {
+  		timeToWait = 15;
+  	}
+  	today = new Date(today.getTime() + timeToWait * 60000);
+  	hours = today.getHours();
+  	if (hours < 12) {
+  		daytime = "AM";
+  	} else {
+  		daytime = "PM";
+  	}
+  	hours = hours % 12;
+
+  	minutes = today.getMinutes();
+  	if (minutes < 10) {
+  		minutes = "0" + minutes;
+  	}
+
+  	preciseTime = hours + ":" + minutes + daytime;
+  	return preciseTime;
+  }
+
+
+	itemPrice = [4.5, 6.25, 5.25, 6.5, 2.35]; // holds the price of each item
+	order = [0,0,0,0,0]; //holds the quantity of each menu item
+	subtotal = 0; 
+	tax = 0;
+	total = 0; 
+	frequency = [0,0,0,0,0]; //holds the cost of an item based on frequency of it
+
+	//get how many of each type of menu item
+ 	$("select[name=quan0]").change(function() {
+
+ 		order[0] = document.getElementsByName("quan0")[0].value; 
+		frequency[0] = getAmount(0, order, frequency, itemPrice);
+
+  	});
+
+  	$("select[name=quan1]").change(function() {
+
+		order[1] = document.getElementsByName("quan1")[0].value;
+		frequency[1] = getAmount(1, order, frequency, itemPrice);
+
+  	});
+
+  	$("select[name=quan2]").change(function() {
+   
+		order[2] = document.getElementsByName("quan2")[0].value;
+		frequency[2] = getAmount(2, order, frequency, itemPrice);
+
+	});
+
+  	$("select[name=quan3]").change(function() {
+    
+		order[3] = document.getElementsByName("quan3")[0].value;
+		frequency[3] = getAmount(3, order, frequency, itemPrice);
+
+	});
+
+   $("select[name=quan4]").change(function() {
+	
+		order[4] = document.getElementsByName("quan4")[0].value;
+		frequency[4] = getAmount(4, order, frequency, itemPrice);
+		
+	});
+
+   //autofill 
+  	$("select").change(function() {
+
+    	subtotal = calculateSubtotal(frequency);
+    	tax = calculateTax(subtotal); 
+		total = calculateTotal(tax, subtotal);
+
+	
+    });
+  	
+  //submit button
+  $('input[type="button"]').click(function() {
+  	
+  	var nameOK = true;
+  	var phoneOK = true;
+  	var orderNumOK = true;
+  	var addressOK = true;
+  	var total = document.getElementsByName("total")[0].value;
+
+  	nameOK = checkName(nameOK);
+  	phoneOK = checkPhone(phoneOK);
+  	addressOK = checkDelivery(addressOK);
+  	orderNumOK = checkTotal(orderNumOK);
+  	time = checkTime();
+  	//if order is valid, submit and print an alert
+  	printAlert(nameOK, phoneOK, addressOK, orderNumOK, time, total);
+
+	});
+
+});
+
+  
+
+
+
+</script>
+</table>
+<p>Subtotal: 
+   $<input type="text"  name='subtotal' id="subtotal" />
+</p>
+<p>Mass tax 6.25%:
+  $ <input type="text"  name='tax' id="tax" />
+</p>
+<p>Total: $ <input type="text"  name='total' id="total" />
+</p>
+
+<input id = "done" type = "button" value = "Submit Order" name = "submit"/>
+
+</form>
+</body>
+</html>
